@@ -97,7 +97,7 @@ function PinKey({
       aria-label={isDelete ? "Delete digit" : `Digit ${label}`}
       className="relative flex items-center justify-center select-none outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/60 focus-visible:ring-offset-1 rounded-[16px] sm:rounded-[18px] group"
       style={{
-        height: 54,
+        height: 48,
         background: pressed
           ? "rgba(237,233,254,0.92)"
           : isDelete
@@ -452,7 +452,9 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
                   ))}
                 </div>
 
+                {/* Keyboard hint — hidden on mobile to save space */}
                 <span
+                  className="hidden sm:block"
                   style={{
                     fontSize: 11,
                     fontWeight: 500,
@@ -580,7 +582,7 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
             style={{
               width: "100%",
               borderRadius: 16,
-              padding: "15px 24px",
+              padding: "12px 24px",
               border: "none",
               cursor: isPending || !isReady ? "not-allowed" : "pointer",
               background:
@@ -656,7 +658,7 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
                 </>
               ) : (
                 <>
-                  <span>{isSetup ? "Unlock Dashboard" : "Save & Continue"}</span>
+                  <span>{isSetup ? "Sign In" : "Save & Continue"}</span>
                   <svg
                     style={{
                       width: 15,

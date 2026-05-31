@@ -143,16 +143,16 @@ export default async function LoginPage() {
             <div
               className="absolute"
               style={{
-                width: "80px",
-                height: "80px",
+                width: "64px",
+                height: "64px",
                 borderRadius: "50%",
                 background:
                   "radial-gradient(circle, rgba(67,24,255,0.35) 0%, rgba(99,102,241,0.15) 50%, transparent 70%)",
-                filter: "blur(12px)",
+                filter: "blur(10px)",
               }}
             />
             <div
-              className="relative flex h-[58px] w-[58px] items-center justify-center rounded-[16px]"
+              className="relative flex h-[48px] w-[48px] sm:h-[58px] sm:w-[58px] items-center justify-center rounded-[14px] sm:rounded-[16px]"
               style={{
                 background:
                   "linear-gradient(145deg, #5c38ff 0%, #4318ff 40%, #3a0ff5 100%)",
@@ -164,7 +164,7 @@ export default async function LoginPage() {
               }}
             >
               <svg
-                className="h-[28px] w-[28px] text-white"
+                className="h-[22px] w-[22px] sm:h-[28px] sm:w-[28px] text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -183,7 +183,7 @@ export default async function LoginPage() {
           {/* Word-mark */}
           <div className="text-center leading-none">
             <span
-              className="block text-[1.65rem] font-black tracking-[-0.045em]"
+              className="block text-[1.3rem] sm:text-[1.65rem] font-black tracking-[-0.045em]"
               style={{
                 background:
                   "linear-gradient(135deg, #1e0a6e 0%, #4318ff 45%, #7c3aed 100%)",
@@ -195,7 +195,7 @@ export default async function LoginPage() {
               Invoixy
             </span>
             <span
-              className="mt-1 block text-[10.5px] font-bold uppercase tracking-[0.2em]"
+              className="mt-0.5 block text-[9px] sm:text-[10.5px] font-bold uppercase tracking-[0.18em]"
               style={{ color: "rgba(109,40,217,0.5)" }}
             >
               GST Invoice Platform
@@ -219,9 +219,9 @@ export default async function LoginPage() {
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Footer — hidden on very small screens to save space */}
         <div
-          className="mt-4 flex items-center gap-1.5 opacity-0 animate-fade-in-up whitespace-nowrap"
+          className="mt-3 hidden sm:flex items-center gap-1.5 opacity-0 animate-fade-in-up whitespace-nowrap"
           style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
         >
           <svg
