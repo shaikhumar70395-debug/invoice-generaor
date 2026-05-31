@@ -103,7 +103,7 @@ export function ProductsManager({ initialProducts, initialQuery }: Props) {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_minmax(340px,400px)] lg:gap-8 max-w-6xl mx-auto pb-24">
+    <div className="grid gap-6 lg:grid-cols-[1fr_minmax(340px,400px)] lg:gap-8 pb-16">
       {/* Products List Section */}
       <div className="space-y-4 min-w-0">
         {/* Search Header */}
