@@ -1,6 +1,6 @@
 # Invoixy
 
-![Invoixy Dashboard](https://via.placeholder.com/1200x600?text=Invoixy+Dashboard+Preview)
+![Invoixy Dashboard](public/screenshot.png)
 
 **Invoixy** is a modern, open-source invoice management platform built for freelancers, agencies, and small businesses. It features a premium, sleek UI, fast invoice generation, and intuitive tracking for your income and outstanding bills.
 
