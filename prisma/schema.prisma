@@ -1,0 +1,152 @@
+// GST invoice generator — single-business SQLite schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// One row (id = 1) holds the seller / company profile.
+model SellerSettings {
+  id            Int      @id @default(1)
+  companyName   String
+  address       String
+  pan           String
+  gstin         String
+  stateName     String
+  stateCode     String
+  phone         String
+  bankName      String
+  bankAccountNo String
+  bankIfsc      String
+  bankBranch    String
+  declaration   String
+  invoicePrefix String   @default("ECMUM")
+  logoDataUrl   String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+/// Stores each issued invoice as an immutable snapshot for reprint/history.
+model Invoice {
+  id                 Int      @id @default(autoincrement())
+  invoiceNumber      String   @unique
+  financialYear      String
+  sequenceNumber     Int
+  invoiceDate        String
+  modeOfPayment      String
+  buyersOrderNo      String
+  dispatchDocNo      String
+  deliveryNoteDate   String
+  dispatchedThrough  String
+  destination        String
+  deliveryAddress    String
+  dueDate            String   @default("")
+  buyerName          String
+  buyerAddress       String
+  buyerGstin         String
+  buyerStateName     String
+  buyerStateCode     String
+  taxMode            String
+  gstRatePercent     Float
+  roundOffEnabled    Boolean
+  totalQuantity      Float
+  subtotal           Float
+  cgstRate           Float
+  sgstRate           Float
+  igstRate           Float
+  cgstAmount         Float
+  sgstAmount         Float
+  igstAmount         Float
+  roundOff           Float
+  grandTotal         Float
+  amountInWords      String
+  paymentStatus      String   @default("unpaid")
+  paidAmount         Float    @default(0)
+  paymentDate        String   @default("")
+  paymentMethod      String   @default("")
+  paymentNotes       String   @default("")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  lines              InvoiceLine[]
+
+  @@index([invoiceDate])
+  @@index([buyerName])
+  @@index([buyerGstin])
+  @@index([paymentStatus])
+}
+
+model InvoiceLine {
+  id              Int      @id @default(autoincrement())
+  invoiceId       Int
+  lineOrder       Int
+  description     String
+  hsnSac          String
+  quantity        Float
+  rate            Float
+  unit            String
+  discountPercent Float
+  gstRatePercent  Float    @default(5)
+  cgstAmount      Float    @default(0)
+  sgstAmount      Float    @default(0)
+  igstAmount      Float    @default(0)
+  amount          Float
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model InvoiceSequence {
+  financialYear String   @id
+  lastNumber    Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
+  gstin     String
+  stateName String
+  stateCode String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([gstin])
+}
+
+model Product {
+  id                    Int      @id @default(autoincrement())
+  description           String
+  hsnSac                String
+  unit                  String
+  defaultRate           Float
+  defaultGstRatePercent Float    @default(5)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([description])
+  @@index([hsnSac])
+}
+
+/// Singleton (id = 1) that persists the in-progress new-invoice draft to the DB.
+/// Survives browser clears, incognito, and switching devices on the same machine.
+model InvoiceDraftRecord {
+  id        Int      @id @default(1)
+  draftJson String   @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+/// Stores application-wide security settings, including auth preference and hashed passwords
+model SecuritySettings {
+  id          Int      @id @default(1)
+  authEnabled Boolean  @default(true)
+  authType    String   @default("PIN") // "PIN" or "PASSWORD"
+  authHash    String?  // Securely hashed password/PIN. Null means it hasn't been set up yet.
+  updatedAt   DateTime @updatedAt
+}

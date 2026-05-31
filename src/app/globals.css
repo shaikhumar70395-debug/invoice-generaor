@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f7fe;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --muted: #64748b;
+  --invoice-paper: #ffffff;
+  --invoice-width: 794px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  
+  --color-primary-50: #f4f4fe;
+  --color-primary-100: #e0e5ff;
+  --color-primary-500: #5d5fef;
+  --color-primary-600: #4318ff;
+  --color-primary-900: #1a1060;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: #c7d2fe;
+  color: #1e1b4b;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Animated Gradient Mesh */
+.bg-mesh-animated {
+  background: linear-gradient(120deg, #e0e7ff 0%, #f0fdfa 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 10s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.page-heading {
+  letter-spacing: -0.02em;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide headers, footers, form elements, and all non-print layout wrappers completely */
+  header,
+  nav,
+  form,
+  aside,
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+
+  /* Reset main container and grid layouts so they do not add margins, page borders, or gaps */
+  main,
+  main > div,
+  .grid,
+  .grid > div {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    border: none !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  /* Position the print canvas absolutely to cover the entire page surface */
+  #invoice-print-surface {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  #invoice-print-surface .print-scale-shell {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #invoice-print-surface .print-scale-paper {
+    width: 100% !important;
+    transform: none !important;
+  }
+
+  #invoice-print-surface .invoice-paper {
+    min-height: auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulseSlow {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(67, 24, 255, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 4px 25px rgba(67, 24, 255, 0.6); }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -1,0 +1,299 @@
+"use client";
+
+import { deleteCustomerFormAction, saveCustomerPresetAction } from "@/app/actions/presets";
+import { Button } from "@/components/ui/Button";
+import { Field, TextArea, TextInput } from "@/components/ui/Field";
+import { SectionCard } from "@/components/ui/SectionCard";
+import { IconPlus, IconTrash } from "@/components/ui/icons";
+import type { CustomerPreset } from "@/lib/types";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
+
+type Props = {
+  initialCustomers: CustomerPreset[];
+  initialQuery: string;
+};
+
+const emptyCustomer = {
+  name: "",
+  address: "",
+  gstin: "",
+  stateName: "",
+  stateCode: "",
+};
+
+export function CustomersManager({ initialCustomers, initialQuery }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(initialQuery);
+  const [selected, setSelected] = useState<CustomerPreset | null>(null);
+  const [form, setForm] = useState(emptyCustomer);
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function updateForm<K extends keyof typeof emptyCustomer>(key: K, value: string) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const params = new URLSearchParams(searchParams.toString());
+    if (search.trim()) {
+      params.set("q", search.trim());
+    } else {
+      params.delete("q");
+    }
+    router.push(`?${params.toString()}`);
+  }
+
+  function handleClearSearch() {
+    setSearch("");
+    router.push("/customers");
+  }
+
+  function handleSelect(customer: CustomerPreset) {
+    setSelected(customer);
+    setForm({
+      name: customer.name,
+      address: customer.address,
+      gstin: customer.gstin,
+      stateName: customer.stateName,
+      stateCode: customer.stateCode,
+    });
+    setMessage(null);
+  }
+
+  function handleAddNew() {
+    setSelected(null);
+    setForm(emptyCustomer);
+    setMessage(null);
+  }
+
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      setMessage("Company name is required.");
+      return;
+    }
+    if (!form.stateCode.trim() || form.stateCode.trim().length !== 2) {
+      setMessage("State code must be exactly 2 digits.");
+      return;
+    }
+
+    setMessage("Saving preset...");
+    startTransition(async () => {
+      const payload = {
+        ...form,
+        id: selected ? selected.id : undefined,
+      };
+      const result = await saveCustomerPresetAction(payload);
+      if (result.ok) {
+        setMessage(selected ? "Customer preset updated." : "New customer preset saved.");
+        if (!selected) {
+          setForm(emptyCustomer);
+        }
+        router.refresh();
+      } else {
+        setMessage("Could not save preset.");
+      }
+    });
+  }
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[1fr_minmax(380px,420px)] xl:gap-8 max-w-6xl mx-auto pb-24">
+      {/* Customers List Section */}
+      <div className="space-y-4 min-w-0">
+        {/* Search Header */}
+        <form onSubmit={handleSearch} className="flex gap-2 rounded-2xl border border-slate-100 bg-white p-3 shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search customers..."
+            className="min-h-10 flex-1 min-w-0 rounded-xl border-none bg-slate-50 px-4 text-sm outline-none focus:ring-2 focus:ring-[#4318ff]/20"
+          />
+          <Button type="submit" variant="primary" className="rounded-xl">
+            Search
+          </Button>
+          {initialQuery ? (
+            <Button type="button" variant="ghost" onClick={handleClearSearch}>
+              Clear
+            </Button>
+          ) : null}
+        </form>
+
+        <div className="flex items-center justify-between mt-6 mb-2 px-1">
+          <h3 className="font-bold text-slate-900 text-lg">Customer Directory</h3>
+          <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded-full tabular-nums">
+            {initialCustomers.length} records
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          {initialCustomers.length > 0 ? (
+            initialCustomers.map((cust) => {
+              const active = selected?.id === cust.id;
+              // Generate a fake avatar color based on name
+              const colors = ["bg-emerald-100 text-emerald-700", "bg-blue-100 text-blue-700", "bg-purple-100 text-purple-700", "bg-orange-100 text-orange-700", "bg-pink-100 text-pink-700"];
+              const charCode = cust.name.charCodeAt(0) || 0;
+              const colorClass = colors[charCode % colors.length];
+              
+              return (
+                <div
+                  key={cust.id}
+                  onClick={() => handleSelect(cust)}
+                  className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all duration-200 hover:-translate-y-1 ${
+                    active ? "border-[#4318ff] bg-indigo-50/30 shadow-md ring-1 ring-[#4318ff]/20" : "border-slate-100 bg-white shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-slate-200"
+                  }`}
+                >
+                  {/* Avatar */}
+                  <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center font-bold text-sm ${colorClass}`}>
+                    {cust.name.charAt(0).toUpperCase()}
+                  </div>
+                  
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <p className="font-bold text-sm text-slate-900 truncate">
+                      {cust.name}
+                    </p>
+                    <p className="text-xs text-slate-500 truncate">
+                      {cust.address || "No address provided"}
+                    </p>
+                    {cust.gstin ? (
+                      <p className="text-[10px] font-mono tracking-wide text-slate-400 mt-1">
+                        GSTIN: {cust.gstin}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600 uppercase">
+                      {cust.stateCode}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <EmptyState
+              title="No customer presets found"
+              description={initialQuery ? "Try resetting your search query." : "Save a customer preset to see it here."}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Side Form Card */}
+      <div className="xl:sticky xl:top-20 xl:self-start min-w-0">
+        <form onSubmit={handleSave} className="space-y-4">
+          <SectionCard
+            title={selected ? "Edit Customer" : "Add Customer"}
+            description={selected ? `Editing record: ${selected.name}` : "Create a reusable customer preset"}
+          >
+            <div className="space-y-4">
+              <Field label="Company name">
+                <TextInput
+                  value={form.name}
+                  onChange={(e) => updateForm("name", e.target.value)}
+                  placeholder="e.g. Acme Corporation"
+                  required
+                />
+              </Field>
+
+              <Field label="GSTIN">
+                <TextInput
+                  value={form.gstin}
+                  onChange={(e) => updateForm("gstin", e.target.value)}
+                  placeholder="15-digit GSTIN (optional)"
+                />
+              </Field>
+
+              <Field label="Billing Address">
+                <TextArea
+                  value={form.address}
+                  onChange={(e) => updateForm("address", e.target.value)}
+                  placeholder="Complete postal address"
+                />
+              </Field>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="State Name">
+                  <TextInput
+                    value={form.stateName}
+                    onChange={(e) => updateForm("stateName", e.target.value)}
+                    placeholder="e.g. MAHARASTRA"
+                  />
+                </Field>
+                <Field label="State Code" hint="2-digit code">
+                  <TextInput
+                    value={form.stateCode}
+                    onChange={(e) => updateForm("stateCode", e.target.value)}
+                    placeholder="e.g. 27"
+                    maxLength={2}
+                  />
+                </Field>
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* Action Row */}
+          <div className="flex flex-col gap-2">
+            <Button type="submit" variant="primary" disabled={pending} className="w-full rounded-xl py-3 shadow-sm">
+              {pending ? "Saving..." : selected ? "Update Customer" : "Save Customer"}
+            </Button>
+
+            {selected ? (
+              <form action={deleteCustomerFormAction} onSubmit={() => {
+                if (confirm("Are you sure you want to delete this preset? Saved invoices will not be affected.")) {
+                  setSelected(null);
+                }
+              }}>
+                <input type="hidden" name="id" value={selected.id} />
+                <Button type="submit" variant="danger" className="w-full rounded-xl py-3">
+                  <IconTrash className="h-4 w-4" />
+                  Delete Customer
+                </Button>
+              </form>
+            ) : null}
+
+            {message ? (
+              <p className="text-center text-xs text-slate-600 font-medium mt-1" role="status">
+                {message}
+              </p>
+            ) : null}
+          </div>
+        </form>
+      </div>
+
+      {/* Floating Action Button for Mobile Add New */}
+      <div className="fixed bottom-6 right-6 z-50 xl:hidden">
+        <button 
+          type="button"
+          onClick={() => {
+             handleAddNew();
+             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          }}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#4318ff] to-indigo-500 text-white shadow-[0_8px_30px_rgba(67,24,255,0.4)] hover:shadow-[0_12px_40px_rgba(67,24,255,0.6)] transition-all duration-300 hover:scale-105 active:scale-95 border border-white/20 animate-pulse"
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Desktop Add New Button */}
+      {selected && (
+        <div className="fixed bottom-6 right-6 z-50 hidden xl:block">
+          <button 
+            type="button"
+            onClick={handleAddNew}
+            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#4318ff] to-indigo-500 px-5 py-3 font-bold text-white shadow-[0_8px_30px_rgba(67,24,255,0.4)] hover:shadow-[0_12px_40px_rgba(67,24,255,0.6)] transition-all hover:scale-105 active:scale-95 border border-white/20"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add New Customer
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

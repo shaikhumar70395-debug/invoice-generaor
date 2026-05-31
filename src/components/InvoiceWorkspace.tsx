@@ -1,0 +1,356 @@
+"use client";
+
+import { saveInvoiceAction, updateInvoiceAction } from "@/app/actions/invoice";
+import { saveDraftAction, clearDraftAction } from "@/app/actions/draft";
+import { InvoiceForm } from "@/components/InvoiceForm";
+import { InvoicePreview } from "@/components/InvoicePreview";
+import { Button } from "@/components/ui/Button";
+import { IconDocument, IconPrinter, IconRefresh } from "@/components/ui/icons";
+import { createSampleInvoiceDraft, createEmptyInvoiceDraft } from "@/lib/defaults";
+import { applyTaxModeFromStates, calculateInvoiceTotals } from "@/lib/gst";
+import { formatMoney } from "@/lib/format";
+import type {
+  CustomerPreset,
+  InvoiceDraft,
+  ProductPreset,
+  SellerProfile,
+} from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+
+type Props = {
+  seller: SellerProfile;
+  initialDraft: InvoiceDraft;
+  customers: CustomerPreset[];
+  products: ProductPreset[];
+  mode?: "create" | "edit";
+  invoiceId?: number;
+};
+
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
+const AUTOSAVE_DEBOUNCE_MS = 1200;
+
+export function InvoiceWorkspace({
+  seller,
+  initialDraft,
+  customers,
+  products,
+  mode = "create",
+  invoiceId,
+}: Props) {
+  const router = useRouter();
+  const isEditMode = mode === "edit";
+
+  const [draft, setDraft] = useState<InvoiceDraft>(() =>
+    applyTaxModeFromStates(initialDraft, seller),
+  );
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [isSaving, startSaving] = useTransition();
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
+  const [previewMode, setPreviewMode] = useState<"fit" | "actual">("fit");
+
+  const totals = useMemo(() => calculateInvoiceTotals(draft), [draft]);
+
+  // ── Debounced auto-save to DB (create mode only) ─────────────────────────
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    // Skip the very first render (initial load)
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    if (isEditMode) return;
+
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+
+    autosaveTimer.current = setTimeout(async () => {
+      setSaveStatus("saving");
+      const result = await saveDraftAction(draft);
+      setSaveStatus(result.ok ? "saved" : "error");
+    }, AUTOSAVE_DEBOUNCE_MS);
+
+    return () => {
+      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
+
+  function onLoadSample() {
+    const sample = createSampleInvoiceDraft();
+    setDraft(
+      applyTaxModeFromStates(
+        {
+          ...sample,
+          meta: {
+            ...sample.meta,
+            invoiceNumber: draft.meta.invoiceNumber,
+          },
+        },
+        seller,
+      ),
+    );
+    setActionMessage(null);
+  }
+
+  function onResetForm() {
+    if (isEditMode) {
+      setDraft(applyTaxModeFromStates(initialDraft, seller));
+    } else {
+      setDraft(applyTaxModeFromStates(createEmptyInvoiceDraft(), seller));
+      clearDraftAction().catch(() => null);
+      setSaveStatus("idle");
+    }
+    setActionMessage(isEditMode ? "Invoice changes reset." : "Form reset and draft cleared.");
+  }
+
+  function onPrintPreview() {
+    setActionMessage("Opening print dialog. Choose Save as PDF if needed.");
+    window.setTimeout(() => window.print(), 50);
+  }
+
+  function onSaveInvoice() {
+    setActionMessage(isEditMode ? "Updating invoice..." : "Saving invoice...");
+    startSaving(async () => {
+      const result =
+        isEditMode && invoiceId
+          ? await updateInvoiceAction(invoiceId, draft)
+          : await saveInvoiceAction(draft);
+      if (!result.ok) {
+        setActionMessage(result.error);
+        return;
+      }
+      // Clear the DB draft after a successful save in create mode
+      if (!isEditMode) {
+        await clearDraftAction();
+        setSaveStatus("idle");
+      }
+      router.push(`/invoices/${result.id}`);
+    });
+  }
+
+  // Save status label
+  const statusLabel: Record<SaveStatus, string | null> = {
+    idle: null,
+    saving: "Saving draft…",
+    saved: "Draft saved",
+    error: "Draft save failed",
+  };
+  const statusColor: Record<SaveStatus, string> = {
+    idle: "",
+    saving: "text-zinc-400",
+    saved: "text-emerald-600",
+    error: "text-rose-500",
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Mobile Tab Switcher */}
+      <div className="no-print xl:hidden flex rounded-lg bg-zinc-200/60 p-1 shadow-sm border border-zinc-200">
+        <button
+          type="button"
+          className={`flex-1 flex items-center justify-center gap-1.5 rounded-md py-2.5 text-center text-sm font-semibold transition-all ${
+            activeTab === "edit"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-900"
+          }`}
+          onClick={() => setActiveTab("edit")}
+        >
+          Edit Details
+        </button>
+        <button
+          type="button"
+          className={`flex-1 flex items-center justify-center gap-1.5 rounded-md py-2.5 text-center text-sm font-semibold transition-all ${
+            activeTab === "preview"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-900"
+          }`}
+          onClick={() => setActiveTab("preview")}
+        >
+          Live Preview
+        </button>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(520px,1.08fr)] xl:gap-8 2xl:grid-cols-[minmax(0,0.9fr)_minmax(620px,1.1fr)]">
+        <div className={`no-print min-w-0 space-y-4 ${activeTab === "edit" ? "block" : "hidden xl:block"}`}>
+          <div className="no-print sticky top-0 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b border-zinc-200 bg-zinc-100/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 xl:static xl:mx-0 xl:bg-transparent xl:px-0 xl:pb-4 xl:pt-0 xl:backdrop-blur-none">
+            <Button variant="primary" onClick={onSaveInvoice} disabled={isSaving}>
+              <IconDocument />
+              {isSaving
+                ? isEditMode
+                  ? "Updating..."
+                  : "Saving..."
+                : isEditMode
+                  ? "Update invoice"
+                  : "Save invoice"}
+            </Button>
+            <Button variant="ghost" onClick={onResetForm}>
+              <IconRefresh />
+              Reset form
+            </Button>
+            <Button variant="secondary" onClick={onPrintPreview}>
+              <IconPrinter />
+              Print / PDF
+            </Button>
+
+            {/* Draft auto-save status (create mode only) */}
+            {!isEditMode && saveStatus !== "idle" && (
+              <span
+                className={`ml-auto flex items-center gap-1.5 text-xs font-medium ${statusColor[saveStatus]}`}
+                role="status"
+                aria-live="polite"
+              >
+                {saveStatus === "saving" && (
+                  <svg
+                    className="h-3 w-3 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                    />
+                  </svg>
+                )}
+                {saveStatus === "saved" && (
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+                {statusLabel[saveStatus]}
+              </span>
+            )}
+
+            {actionMessage ? (
+              <p className="w-full text-xs text-zinc-600" role="status">
+                {actionMessage}
+              </p>
+            ) : null}
+          </div>
+
+          <InvoiceForm
+            seller={seller}
+            draft={draft}
+            onChange={setDraft}
+            onLoadSample={onLoadSample}
+            showSampleAction={!isEditMode}
+            invoiceNumberReadOnly
+            customers={customers}
+            products={products}
+          />
+
+          <aside className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Live totals
+            </p>
+            <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+              <div className="flex justify-between gap-4 sm:flex-col sm:justify-start">
+                <dt className="text-zinc-600">Subtotal</dt>
+                <dd className="font-medium tabular-nums text-zinc-900">
+                  {formatMoney(totals.subtotal)}
+                </dd>
+              </div>
+              {draft.taxMode === "intra" ? (
+                <>
+                  <div className="flex justify-between gap-4 sm:flex-col sm:justify-start">
+                    <dt className="text-zinc-600">CGST ({totals.cgstRate}%)</dt>
+                    <dd className="font-medium tabular-nums text-zinc-900">
+                      {formatMoney(totals.cgstAmount)}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4 sm:flex-col sm:justify-start">
+                    <dt className="text-zinc-600">SGST ({totals.sgstRate}%)</dt>
+                    <dd className="font-medium tabular-nums text-zinc-900">
+                      {formatMoney(totals.sgstAmount)}
+                    </dd>
+                  </div>
+                </>
+              ) : (
+                <div className="flex justify-between gap-4 sm:flex-col sm:justify-start">
+                  <dt className="text-zinc-600">IGST ({totals.igstRate}%)</dt>
+                  <dd className="font-medium tabular-nums text-zinc-900">
+                    {formatMoney(totals.igstAmount)}
+                  </dd>
+                </div>
+              )}
+              <div className="flex justify-between gap-4 sm:flex-col sm:justify-start">
+                <dt className="text-zinc-600">Round off</dt>
+                <dd className="font-medium tabular-nums text-zinc-900">
+                  {formatMoney(totals.roundOff)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4 border-t border-zinc-100 pt-2 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between sm:border-t sm:pt-3">
+                <dt className="font-semibold text-zinc-900">Grand total</dt>
+                <dd className="text-lg font-bold tabular-nums text-zinc-900">
+                  {formatMoney(totals.grandTotal)}
+                </dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+
+        <div className={`min-w-0 xl:sticky xl:top-20 xl:self-start ${activeTab === "preview" ? "block" : "hidden xl:block"}`}>
+          <div className="no-print mb-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold text-zinc-900">Invoice preview</h2>
+              <p className="text-xs text-zinc-500">A4 print surface, updates live</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="rounded border border-zinc-200 bg-white px-2 py-1 text-xs font-medium tabular-nums text-zinc-700">
+                {formatMoney(totals.grandTotal)}
+              </span>
+              <div className="flex rounded-md border border-zinc-200 bg-white p-0.5">
+                {(["fit", "actual"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setPreviewMode(option)}
+                    className={`rounded px-2 py-1 text-xs font-semibold transition-colors ${
+                      previewMode === option
+                        ? "bg-zinc-900 text-white"
+                        : "text-zinc-600"
+                    }`}
+                  >
+                    {option === "fit" ? "Fit" : "100%"}
+                  </button>
+                ))}
+              </div>
+              <Button
+                variant="secondary"
+                className="px-3 py-1.5 text-xs"
+                onClick={onPrintPreview}
+              >
+                <IconPrinter className="h-3.5 w-3.5" />
+                Print
+              </Button>
+            </div>
+          </div>
+          <div
+            id="invoice-print-surface"
+            className="max-h-[calc(100vh-6rem)] overflow-auto rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-inner sm:p-5"
+          >
+            <InvoicePreview
+              seller={seller}
+              draft={draft}
+              totals={totals}
+              logoUrl={seller.logoDataUrl}
+              previewMode={previewMode}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
