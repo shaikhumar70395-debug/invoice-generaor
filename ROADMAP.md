@@ -170,7 +170,6 @@ Everything below is fully working in production right now.
 ### 📲 WhatsApp Integration
 - [ ] **Share invoice via WhatsApp** — one-tap button on any invoice to share the PDF link directly to a client's WhatsApp
 - [ ] **Pre-filled message** — auto-compose a professional message with invoice number, amount due, and due date
-- [ ] **WhatsApp Business API** — for high-volume users: automated delivery confirmations and read receipts
 - [ ] **Payment reminder via WhatsApp** — send overdue reminders to clients directly on WhatsApp
 
 ### 💳 Payments & Integrations
