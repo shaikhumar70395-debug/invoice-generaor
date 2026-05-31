@@ -306,9 +306,9 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
         }}
       />
 
-      <div className="px-5 pt-6 pb-6 sm:px-8 sm:pt-7 sm:pb-8">
+      <div className="px-5 pt-4 pb-5 sm:px-8 sm:pt-5 sm:pb-6">
         {/* ── Header ── */}
-        <div style={{ marginBottom: 18, textAlign: "center" }}>
+        <div style={{ marginBottom: 14, textAlign: "center" }}>
           <h1
             style={{
               fontSize: 20,
@@ -338,7 +338,7 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* ── Error ── */}
           {error && (
@@ -422,10 +422,10 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
 
           {/* ── PIN MODE ── */}
           {isPinMode ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
               {/* PIN dots area */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                 <span
                   style={{
                     fontSize: 10.5,
@@ -441,7 +441,7 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
                 {/* Dots row */}
                 <div
                   className={pinShaking ? "pin-shake" : ""}
-                  style={{ display: "flex", gap: 9, alignItems: "center", padding: "2px 0" }}
+                  style={{ display: "flex", gap: 9, alignItems: "center" }}
                 >
                   {Array.from({ length: 6 }).map((_, i) => (
                     <PinDot
@@ -451,19 +451,6 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
                     />
                   ))}
                 </div>
-
-                {/* Keyboard hint — hidden on mobile to save space */}
-                <span
-                  className="hidden sm:block"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: "rgba(148,163,184,0.7)",
-                    letterSpacing: "0.01em",
-                  }}
-                >
-                  Keyboard shortcuts supported
-                </span>
               </div>
 
               {/* Hidden input */}
@@ -682,7 +669,7 @@ export default function LoginForm({ isSetup, authType }: LoginFormProps) {
         {/* ── Card footer divider ── */}
         <div
           style={{
-            marginTop: 22,
+            marginTop: 14,
             display: "flex",
             alignItems: "center",
             gap: 12,

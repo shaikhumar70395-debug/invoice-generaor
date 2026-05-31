@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { InvoixyLogo } from "@/components/InvoixyLogo";
 
 import { IconHome, IconDocument, IconCopy, IconUsers, IconBox, IconSettings, IconLock, IconLogout, IconPlus } from "./ui/icons";
 
@@ -43,12 +44,10 @@ export function AppNav() {
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link
             href="/"
-            className="flex flex-col leading-tight"
+            className="flex items-center"
             onClick={() => setIsOpen(false)}
           >
-            <span className="text-xl font-extrabold tracking-tight text-[#4318ff]">
-              Invoixy
-            </span>
+            <InvoixyLogo iconSize={30} />
           </Link>
 
           {/* Desktop Navigation */}
@@ -119,10 +118,8 @@ export function AppNav() {
         >
           {/* Overlay Header */}
           <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <div className="flex flex-col leading-tight">
-              <span className="text-xl font-extrabold tracking-tight text-[#4318ff]">
-                Invoixy
-              </span>
+            <div className="flex items-center">
+              <InvoixyLogo iconSize={28} />
             </div>
             <button
               type="button"

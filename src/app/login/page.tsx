@@ -1,5 +1,6 @@
 import { checkSecuritySetup } from "@/app/actions/auth";
 import LoginForm from "@/components/LoginForm";
+import { InvoixyIcon } from "@/components/InvoixyLogo";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,7 @@ export default async function LoginPage() {
 
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden px-4 py-6 sm:py-16"
+      className="relative flex min-h-[calc(100dvh-64px)] w-full flex-col items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-4 sm:py-6"
       style={{
         /* Rich layered base — not flat white */
         background:
@@ -137,70 +138,35 @@ export default async function LoginPage() {
       <div className="auth-brand-enter relative z-10 flex w-full max-w-[420px] flex-col items-center">
 
         {/* ── Branding ─────────────────────────────────────────────────── */}
-        <div className="mb-3 sm:mb-5 flex flex-col items-center gap-1.5 sm:gap-2.5">
-          {/* Logo glow halo */}
+        <div className="mb-3 flex flex-col items-center gap-2">
+          {/* Logo icon with ambient glow */}
           <div className="relative flex items-center justify-center">
             <div
-              className="absolute"
+              className="absolute rounded-full pointer-events-none"
               style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                background:
-                  "radial-gradient(circle, rgba(67,24,255,0.35) 0%, rgba(99,102,241,0.15) 50%, transparent 70%)",
-                filter: "blur(10px)",
+                width: 72,
+                height: 72,
+                background: "radial-gradient(circle, rgba(67,24,255,0.28) 0%, rgba(99,102,241,0.10) 55%, transparent 72%)",
+                filter: "blur(14px)",
               }}
             />
-            <div
-              className="relative flex h-[48px] w-[48px] sm:h-[58px] sm:w-[58px] items-center justify-center rounded-[14px] sm:rounded-[16px]"
-              style={{
-                background:
-                  "linear-gradient(145deg, #5c38ff 0%, #4318ff 40%, #3a0ff5 100%)",
-                boxShadow:
-                  "0 0 0 1px rgba(255,255,255,0.22) inset," +
-                  "0 2px 0 rgba(255,255,255,0.12) inset," +
-                  "0 6px 20px rgba(67,24,255,0.55)," +
-                  "0 16px 48px rgba(67,24,255,0.25)",
-              }}
-            >
-              <svg
-                className="h-[22px] w-[22px] sm:h-[28px] sm:w-[28px] text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.2}
-                style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.25))" }}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+            <div className="relative" style={{ filter: "drop-shadow(0 4px 16px rgba(67,24,255,0.45))" }}>
+              <InvoixyIcon size={46} />
             </div>
           </div>
 
-          {/* Word-mark */}
-          <div className="text-center leading-none">
-            <span
-              className="block text-[1.3rem] sm:text-[1.65rem] font-black tracking-[-0.045em]"
-              style={{
-                background:
-                  "linear-gradient(135deg, #1e0a6e 0%, #4318ff 45%, #7c3aed 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Invoixy
-            </span>
-            <span
-              className="mt-0.5 block text-[9px] sm:text-[10.5px] font-bold uppercase tracking-[0.18em]"
-              style={{ color: "rgba(109,40,217,0.5)" }}
-            >
-              GST Invoice Platform
-            </span>
-          </div>
+          {/* Wordmark only — no subtitle */}
+          <span
+            className="text-[1.45rem] font-black tracking-[-0.04em] leading-none"
+            style={{
+              background: "linear-gradient(135deg, #1e0a6e 0%, #4318ff 50%, #6d28d9 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Invoixy
+          </span>
         </div>
 
         {/* ── Card glow ring (sits behind the card) ─────────────────────── */}

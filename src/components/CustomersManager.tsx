@@ -101,7 +101,7 @@ export function CustomersManager({ initialCustomers, initialQuery }: Props) {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_minmax(380px,420px)] xl:gap-8 max-w-6xl mx-auto pb-24">
+    <div className="grid gap-6 lg:grid-cols-[1fr_minmax(340px,400px)] lg:gap-8 max-w-6xl mx-auto pb-24">
       {/* Customers List Section */}
       <div className="space-y-4 min-w-0">
         {/* Search Header */}
@@ -182,7 +182,7 @@ export function CustomersManager({ initialCustomers, initialQuery }: Props) {
       </div>
 
       {/* Side Form Card */}
-      <div className="xl:sticky xl:top-20 xl:self-start min-w-0">
+      <div className="lg:sticky lg:top-20 lg:self-start min-w-0">
         <form onSubmit={handleSave} className="space-y-4">
           <SectionCard
             title={selected ? "Edit Customer" : "Add Customer"}
@@ -264,7 +264,7 @@ export function CustomersManager({ initialCustomers, initialQuery }: Props) {
       </div>
 
       {/* Floating Action Button for Mobile Add New */}
-      <div className="fixed bottom-6 right-6 z-50 xl:hidden">
+      <div className="fixed bottom-6 right-6 z-50 lg:hidden">
         <button 
           type="button"
           onClick={() => {
@@ -281,7 +281,7 @@ export function CustomersManager({ initialCustomers, initialQuery }: Props) {
       
       {/* Desktop Add New Button */}
       {selected && (
-        <div className="fixed bottom-6 right-6 z-50 hidden xl:block">
+        <div className="fixed bottom-6 right-6 z-50 hidden lg:block">
           <button 
             type="button"
             onClick={handleAddNew}
