@@ -66,29 +66,35 @@ export function SecuritySettingsForm({ currentAuthType }: { currentAuthType: str
 
         <div className="space-y-2">
           <label htmlFor="currentCredential" className="text-sm font-medium text-zinc-900">
-            Current {currentAuthType === "PIN" ? "PIN" : "Password"}
+            Current {currentAuthType === "PIN" ? "6-Digit PIN" : "Password"}
           </label>
           <input
             id="currentCredential"
             name="currentCredential"
             type={currentAuthType === "PIN" ? "password" : "password"}
             inputMode={currentAuthType === "PIN" ? "numeric" : "text"}
+            maxLength={currentAuthType === "PIN" ? 6 : undefined}
+            pattern={currentAuthType === "PIN" ? "\\d{6}" : undefined}
+            title={currentAuthType === "PIN" ? "PIN must be exactly 6 digits" : undefined}
             required
-            className="w-full rounded-lg border border-zinc-300 px-4 py-2 text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+            className="w-full rounded-lg border border-zinc-300 px-4 py-2 tracking-[0.2em] text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
           />
         </div>
 
         <div className="space-y-2">
           <label htmlFor="newCredential" className="text-sm font-medium text-zinc-900">
-            New {authType === "PIN" ? "PIN" : "Password"}
+            New {authType === "PIN" ? "6-Digit PIN" : "Password"}
           </label>
           <input
             id="newCredential"
             name="newCredential"
             type={authType === "PIN" ? "password" : "password"}
             inputMode={authType === "PIN" ? "numeric" : "text"}
+            maxLength={authType === "PIN" ? 6 : undefined}
+            pattern={authType === "PIN" ? "\\d{6}" : undefined}
+            title={authType === "PIN" ? "PIN must be exactly 6 digits" : undefined}
             required
-            className="w-full rounded-lg border border-zinc-300 px-4 py-2 text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+            className="w-full rounded-lg border border-zinc-300 px-4 py-2 tracking-[0.2em] text-zinc-900 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
           />
         </div>
 

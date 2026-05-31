@@ -90,6 +90,14 @@ export const PaymentUpdateSchema = z.object({
 export const SetupSecuritySchema = z.object({
   credential: z.string().min(1, "Credential is required"),
   authType: z.string().min(1, "Auth type is required"),
+}).superRefine((data, ctx) => {
+  if (data.authType === "PIN" && !/^\d{6}$/.test(data.credential)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "PIN must be exactly 6 digits.",
+      path: ["credential"],
+    });
+  }
 });
 
 export const LoginSchema = z.object({
@@ -100,4 +108,12 @@ export const UpdateSecuritySchema = z.object({
   currentCredential: z.string().min(1, "Current credential is required"),
   newCredential: z.string().min(1, "New credential is required"),
   newAuthType: z.string().min(1, "New auth type is required"),
+}).superRefine((data, ctx) => {
+  if (data.newAuthType === "PIN" && !/^\d{6}$/.test(data.newCredential)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "New PIN must be exactly 6 digits.",
+      path: ["newCredential"],
+    });
+  }
 });

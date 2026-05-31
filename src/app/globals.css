@@ -8,6 +8,13 @@
   --muted: #64748b;
   --invoice-paper: #ffffff;
   --invoice-width: 794px;
+
+  /* Auth screen design tokens */
+  --brand: #4318ff;
+  --brand-light: #6b46ff;
+  --brand-dark: #3310cc;
+  --brand-glow: rgba(67, 24, 255, 0.35);
+  --brand-glow-soft: rgba(67, 24, 255, 0.12);
 }
 
 @theme inline {
@@ -33,7 +40,9 @@ body {
   color: #1e1b4b;
 }
 
-/* Glassmorphism Utilities */
+/* ─────────────────────────────────────────────
+   GLASSMORPHISM UTILITIES
+───────────────────────────────────────────── */
 .glass-panel {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px);
@@ -49,7 +58,9 @@ body {
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-/* Animated Gradient Mesh */
+/* ─────────────────────────────────────────────
+   BACKGROUND ANIMATIONS
+───────────────────────────────────────────── */
 .bg-mesh-animated {
   background: linear-gradient(120deg, #e0e7ff 0%, #f0fdfa 100%);
   background-size: 200% 200%;
@@ -57,23 +68,252 @@ body {
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
+/* Auth page rich background */
+.auth-bg {
+  background: radial-gradient(ellipse 80% 60% at 20% -10%, rgba(67, 24, 255, 0.12) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 80% at 80% 110%, rgba(99, 102, 241, 0.10) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 50% at 50% 50%, rgba(167, 139, 250, 0.05) 0%, transparent 70%),
+              linear-gradient(160deg, #f0f4ff 0%, #fafbff 40%, #f5f3ff 70%, #eff6ff 100%);
+  background-attachment: fixed;
+}
+
+/* Floating orb animation */
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(20px, -30px) scale(1.05); }
+  66%       { transform: translate(-15px, 15px) scale(0.97); }
+}
+
+@keyframes floatOrbReverse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-25px, 20px) scale(1.04); }
+  66%       { transform: translate(18px, -20px) scale(0.98); }
+}
+
+.orb-float-1 {
+  animation: floatOrb 18s ease-in-out infinite;
+}
+
+.orb-float-2 {
+  animation: floatOrbReverse 22s ease-in-out infinite;
+}
+
+.orb-float-3 {
+  animation: floatOrb 26s ease-in-out infinite 4s;
+}
+
+/* ─────────────────────────────────────────────
+   AUTH CARD ENTRANCE ANIMATIONS
+───────────────────────────────────────────── */
+@keyframes authCardEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    filter: blur(4px);
+  }
+  60% {
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.auth-card-enter {
+  animation: authCardEnter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes authBrandEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-brand-enter {
+  animation: authBrandEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+/* ─────────────────────────────────────────────
+   PIN DOT ANIMATIONS
+───────────────────────────────────────────── */
+@keyframes pinDotFill {
+  0%   { transform: scale(0.5); opacity: 0.4; }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pin-dot-filled {
+  animation: pinDotFill 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pinDotShake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-6px); }
+  30%       { transform: translateX(6px); }
+  45%       { transform: translateX(-4px); }
+  60%       { transform: translateX(4px); }
+  75%       { transform: translateX(-2px); }
+  90%       { transform: translateX(2px); }
+}
+
+.pin-shake {
+  animation: pinDotShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* PIN dot ambient glow pulse */
+@keyframes pinGlowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.15); }
+}
+
+/* Spinner used in submit button */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─────────────────────────────────────────────
+   KEYPAD KEY ANIMATIONS
+───────────────────────────────────────────── */
+@keyframes keyPress {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.91); }
+  100% { transform: scale(1); }
+}
+
+.key-press {
+  animation: keyPress 0.18s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+}
+
+/* ─────────────────────────────────────────────
+   GENERAL UTILITIES
+───────────────────────────────────────────── */
 .page-heading {
   letter-spacing: -0.02em;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes pulseSlow {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(67, 24, 255, 0.4); }
+  50%       { transform: scale(1.02); box-shadow: 0 4px 25px rgba(67, 24, 255, 0.6); }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ─────────────────────────────────────────────
+   AUTH CARD SURFACE
+───────────────────────────────────────────── */
+.auth-glass-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(67, 24, 255, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 8px 24px rgba(0, 0, 0, 0.06),
+    0 32px 64px rgba(67, 24, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* ─────────────────────────────────────────────
+   KEYPAD KEYS
+───────────────────────────────────────────── */
+.pin-key {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pin-key:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(67, 24, 255, 0.25);
+  box-shadow:
+    0 2px 8px rgba(67, 24, 255, 0.12),
+    0 8px 20px rgba(67, 24, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+  color: #4318ff;
+}
+
+.pin-key:active {
+  transform: scale(0.92) translateY(0);
+  background: rgba(237, 233, 254, 0.9);
+  box-shadow:
+    0 1px 4px rgba(67, 24, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.pin-key-delete {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pin-key-delete:hover {
+  background: rgba(254, 242, 242, 0.9);
+  border-color: rgba(248, 113, 113, 0.3);
+  box-shadow:
+    0 2px 8px rgba(239, 68, 68, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+  color: #dc2626;
+}
+
+.pin-key-delete:active {
+  transform: scale(0.92) translateY(0);
+}
+
+/* ─────────────────────────────────────────────
+   PRINT STYLES (unchanged)
+───────────────────────────────────────────── */
 @media print {
   @page {
     size: A4;
     margin: 0;
   }
 
-  html,
-  body {
+  html, body {
     margin: 0 !important;
     padding: 0 !important;
     height: auto !important;
@@ -82,21 +322,11 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* Hide headers, footers, form elements, and all non-print layout wrappers completely */
-  header,
-  nav,
-  form,
-  aside,
-  .no-print,
-  .no-print * {
+  header, nav, form, aside, .no-print, .no-print * {
     display: none !important;
   }
 
-  /* Reset main container and grid layouts so they do not add margins, page borders, or gaps */
-  main,
-  main > div,
-  .grid,
-  .grid > div {
+  main, main > div, .grid, .grid > div {
     margin: 0 !important;
     padding: 0 !important;
     max-width: none !important;
@@ -105,7 +335,6 @@ body {
     box-shadow: none !important;
   }
 
-  /* Position the print canvas absolutely to cover the entire page surface */
   #invoice-print-surface {
     position: absolute !important;
     left: 0 !important;
@@ -136,22 +365,4 @@ body {
     box-shadow: none !important;
     --tw-ring-shadow: 0 0 #0000 !important;
   }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes pulseSlow {
-  0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(67, 24, 255, 0.4); }
-  50% { transform: scale(1.02); box-shadow: 0 4px 25px rgba(67, 24, 255, 0.6); }
-}
-
-.animate-pulse-slow {
-  animation: pulseSlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
